@@ -29,8 +29,8 @@ module weight_initializer (R:real) : {
 
   let gen_random_array_2d_xavier_uni (m: i64) (n: i64) (seed:i32) : [n][m]t =
     let d = R.(((sqrt((i32 6)) / sqrt(i64 n + i64 m))) )
-    let arr = gen_random_array_uni (m*n) (R.(neg d),d) seed
-    in unflatten n m arr
+    let arr = gen_random_array_uni (n*m) (R.(neg d),d) seed
+    in unflatten arr
 
   let gen_rand_norm (i: i32) (dist) : t =
     let rng = norm.engine.rng_from_seed [i]
@@ -42,6 +42,6 @@ module weight_initializer (R:real) : {
   let gen_random_array_2d_xavier_norm (m: i64) (n: i64) (seed:i32) : [n][m]t =
     let n_sqrt = R.(sqrt (i32 2/ (i64 m + i64 n)))
     let dist = {mean = R.(i32 0), stddev = n_sqrt }
-    let arr = gen_random_array_norm (m*n) seed dist
-    in unflatten n m (map (\x -> R.(x)) arr)
+    let arr = gen_random_array_norm (n*m) seed dist
+    in unflatten (map (\x -> R.(x)) arr)
 }

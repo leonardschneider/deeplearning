@@ -53,10 +53,10 @@ module utility (R:real) : {
 
 
   let diag [len] (X:[len]t) =
-    let elem = len ** 2
+    --let elem = len ** 2
     let index  = map (\x -> x * len + x) (0..<len)
-    let retval = scatter (replicate elem R.(i32 0)) index X
-   in unflatten len len retval
+    let retval = scatter (replicate (len*len) R.(i32 0)) index X
+   in unflatten retval
 
   let extract_diag [len] (X:[len][len]t) =
     let X_flat = flatten X

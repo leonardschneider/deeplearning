@@ -79,7 +79,7 @@ module neural_network (R:real): network with t = R.t = {
      weights = (ws1, ws2)}
 
 
-  let predict  [K] 'i 'w 'g 'e1 'e2 'u 'o
+  let predict  [K] 'i 'w 'g 'e1 'e2 '^u 'o
                ({forward=f, backward=_, weights=w}:NN i w o g e1 e2 u)
                (input: [K]i)
                ({f=class, fd = _}:activation_func o)  =
@@ -87,7 +87,7 @@ module neural_network (R:real): network with t = R.t = {
     in map (\o -> class o) output
 
 
-  let accuracy [K] 'w 'g 'e1 'e2 'u 'i 'o
+  let accuracy [K] 'w 'g 'e1 'e2 '^u 'i 'o
                (nn:NN i w o g e1 e2 u)
                (input: [K]i)
                (labels: [K]o)
@@ -101,7 +101,7 @@ module neural_network (R:real): network with t = R.t = {
     in R.(i32 total / i64 K)
 
 
-  let loss [K] 'w 'g 'e1 'e2 'u 'i 'o (nn:NN i w o g e1 e2 u)
+  let loss [K] 'w 'g 'e1 'e2 '^u 'i 'o (nn:NN i w o g e1 e2 u)
            (input:[K]i)
            (labels:[K]o)
            ({f = loss, fd = _}: loss_func o t)
