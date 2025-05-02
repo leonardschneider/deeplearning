@@ -3,18 +3,19 @@ import "../nn_types"
 import "../util"
 import "../weight_init"
 import "../../../diku-dk/linalg/linalg"
+import "../../../leonardschneider/pickle/pickle"
 
-type^ dense_layer [m] [n] 't =
+type^ dense_layer [m] [n] 't [p] =
   NN ([m]t) (std_weights [n][m] [n] t) ([n]t)
      ([m]t, [n]t) ([n]t) ([m]t)
-     (apply_grad3 t)
+     (apply_grad3 t) [] [p]
 
 -- | Fully connected layer
-module dense (R:real) : { type t = R.t
-                          val init : (m: i64) -> (n: i64)
+module dense (R: Real): { type t = R.t
+                          val init [s]: (label: [s]u8) -> (m: i64) -> (n: i64)
                                   -> activation_func ([n]t)
                                   -> i32
-                                  -> dense_layer [m] [n] t
+                                  -> dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz]
                          } = {
 
   type t            = R.t
@@ -58,13 +59,14 @@ module dense (R:real) : { type t = R.t
     let error' = transpose (lalg.matmul (transpose w) delta)
     in (error', (w', b'))
 
+  module P = pickle
 
-  let init m n (act: activation_func ([n]t)) (seed:i32) : dense_layer [m] [n] t =
-    let w = w_init.gen_random_array_2d_xavier_uni m n seed
-    let b = map (\_ -> R.(i32 0)) (0..<n)
-    in
+  let init [s] (label: [s]u8) m n (act: activation_func ([n]t)) (seed:i32) : dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz] =
     {forward  = \k -> forward k n m act.f,
      backward = \k -> backward k n m act.fd,
-     weights  = (w,b)}
+     pickle = P.pair (P.array n (P.array m R.pu)) (P.array n R.pu),
+     specs = label ++ ".weight" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x02] ++ ((P.pickle P.i64) n) ++ ((P.pickle P.i64) m)
+          ++ label ++ ".bias" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x01] ++ ((P.pickle P.i64) n),
+     w_init = \() -> (w_init.gen_random_array_2d_xavier_uni m n seed, map (\_ -> R.(i32 0)) (0..<n))}
 
 }

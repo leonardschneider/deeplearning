@@ -5,7 +5,7 @@ open import "layers/layers"
 open import "loss_funcs"
 
 -- | Aggregation module for deep learning
-module deep_learning (R:real) : {
+module deep_learning (R: Real) : {
 
   type t = R.t
   module nn     : network    with t = R.t

@@ -1,11 +1,15 @@
+import "../../leonardschneider/pickle/pickle"
+
 -- | Network types
 type^ forwards   'input 'w 'output 'cache = bool -> w -> input -> (cache, output)
 type^ backwards  'c 'w  'err_in  'err_out '^u = bool -> u -> w -> c -> err_in  -> (err_out, w)
 
-type^ NN 'input 'w 'output 'c 'e_in 'e_out '^u =
+type^ NN 'input 'w 'output 'c 'e_in 'e_out '^u [s] [p] =
                { forward : (k: i64) -> forwards ([k]input) w ([k]output) ([k]c),
                  backward: (k: i64) -> backwards ([k]c) w ([k]e_in) ([k]e_out) u,
-                 weights : w}
+                 pickle: pickle.pu w [p],
+                 specs: [s]u8,
+                 w_init: () -> w}
 
 --- Commonly used types
 type arr1d [n] 't = [n]t
@@ -16,6 +20,11 @@ type arr4d [n][m][p][q] 't = [n][m][p][q]t
 type dims2d  = (i32, i32)
 type dims3d  = (i32, i32, i32)
 
+-- Opaque weight type to keep futhark-pycffi happy
+type weights 't = { weights: t }
+
+let get_weights 'w (ws: weights w): w = ws.weights
+
 --- The 'standard' weight definition
 --- used by optimizers
 type std_weights [a][b][c] 't = ([a][b]t, [c]t)
@@ -25,5 +34,22 @@ type^ apply_grad3 't = (a: i64) -> (b: i64) -> apply_grad2 ([a][b]t) ([a]t)
 
 --- Function pairs
 --- Denotes a function and it's derivative
-type^ activation_func 'o = {f:o -> o, fd:o -> o}
-type^ loss_func 'o  't   = {f:o -> o -> t, fd:o -> o -> o}
+type^ activation_func 'o = {f: o -> o, fd: o -> o}
+type^ loss_func 'o  't   = {f: o -> o -> t, fd: o -> o -> o}
+
+--- Real numbers with serialization
+module type Real = {
+  include real
+  val sz: i64
+  type^ Pu = pickle.pu t [sz]
+  val pu: Pu
+  val tpe: [4]u8
+}
+
+module f32: Real with t = f32 = {
+  open f32
+  let sz = 4i64
+  type^ Pu = pickle.pu f32 [sz]
+  let pu = (pickle.f32 :> pickle.pu f32 [sz])
+  let tpe = " f32"
+}

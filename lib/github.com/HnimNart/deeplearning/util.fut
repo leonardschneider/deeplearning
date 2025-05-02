@@ -1,6 +1,8 @@
 -- | Common utility functions used throughout
 --   the deep learning library
 
+import "../../leonardschneider/pickle/pickle"
+
 module utility (R:real) : {
 
   type t = R.t

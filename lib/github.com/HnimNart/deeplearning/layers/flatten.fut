@@ -1,10 +1,11 @@
 import "../nn_types"
 import "layer_type"
+import "../../../leonardschneider/pickle/pickle"
 
 type^ flatten_layer [m][a][b] 't =
     NN ([m][a][b]t) () ([m*a*b]t)
        () ([m*a*b]t) ([m][a][b]t)
-       (apply_grad3 t)
+       (apply_grad3 t) [] []
 
 module flatten (R:real) : {
   type t = R.t
@@ -29,5 +30,7 @@ module flatten (R:real) : {
   let init m a b : flatten_layer [m][a][b] t =
     {forward  = \k -> forward k,
      backward = \k -> backward k m a b,
-     weights  = ()}
+     pickle = pickle.cst (),
+     specs = [],
+     w_init  = \() -> ()}
 }

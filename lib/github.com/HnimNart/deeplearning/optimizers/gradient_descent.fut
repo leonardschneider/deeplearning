@@ -30,25 +30,31 @@ module gradient_descent (R:real) : optimizer_type
 
     in (w', b')
 
-  let train [K] 'w 'g 'o 'e2 'i
+  let train [K] 'w 'g 'o 'e2 'i [s] [ps]
             ({forward=f,
               backward=b,
-              weights=w}:NN i w o g o e2 (apply_grad3 t))
+              pickle=_,
+              specs=_,
+              w_init=_}:NN i w o g o e2 (apply_grad3 t) [s] [ps])
+            (ws: weights w)
             (alpha:learning_rate)
             (input:[K]i)
             (labels:[K]o)
             (batch_sz: i64)
-            ({f=_, fd=loss'}:loss_func o t) =
+            ({f=loss, fd=loss'}:loss_func o t) =
 
     let i = 0
+    let ws = get_weights ws
+    let training_loss = R.(i32 0)
     let apply_g = apply_grad_gd alpha batch_sz
-    let (w',_) = loop (w, i) while i < length input do
+    let (ws', training_loss', _) = loop (ws, training_loss, i) while i < length input do
                    let input'          = take batch_sz (drop i input)
                    let label'          = take batch_sz (drop i labels)
-                   let (cache, output) = f batch_sz true w input'
+                   let (cache, output) = f batch_sz true ws input'
+                   let training_loss' = map2 loss output label' |> reduce (R.+) R.(i32 0) |> (R.+) training_loss
                    let error           = map2 (\o l -> loss' o l) output label'
-                   let (_, w')         = b batch_sz false apply_g w cache error
-                   in (w', i + batch_sz)
-    in {forward = f, backward = b,  weights = w'}
+                   let (_, ws')         = b batch_sz false apply_g ws cache error
+                   in (ws', training_loss', i + batch_sz)
+    in ({ weights = ws'}, training_loss')
 
 }

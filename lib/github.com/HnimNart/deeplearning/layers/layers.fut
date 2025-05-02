@@ -9,9 +9,11 @@ module type layers = {
 
   type t
 
+  module R: Real with t = t
+
   --- Layer types
-  type^ dense_tp [m] [n] =
-    dense_layer [m] [n] t
+  type^ dense_tp [m] [n] [p] =
+    dense_layer [m] [n] t [p]
 
   --type^ conv2d_tp [p][m][n] [filter_d] [filters] [out_m] [out_n] =
   --  conv2d_layer [p][m][n] [filter_d] [filters] [out_m] [out_n] t
@@ -23,7 +25,7 @@ module type layers = {
     flatten_layer [m][a][b] t
 
   -- Simple wrappers for each layer type
-  val dense: (m: i64) -> (n: i64) -> activation_func ([n]t) ->  i32 -> dense_tp [m] [n]
+  val dense [s]: (label: [s]u8) -> (m: i64) -> (n: i64) -> activation_func ([n]t) ->  i32 -> dense_tp [m] [n] [n * (m * R.sz) + n * R.sz]
   --val conv2d : (p: i64) -> (m: i64) -> (n: i64)
   --          -> (filter_d: i64) -> (stride: i32) -> (filters: i64)
   --          -> (out_m: i64) -> (out_n: i64)
@@ -39,10 +41,11 @@ module type layers = {
           -> flatten_tp [m][a][b]
 }
 
-module layers_coll (R:real): layers with t = R.t = {
+module layers_coll (R: Real): layers with t = R.t = {
 
   type t = R.t
 
+  module R = R
 
   module dense_layer   = dense R
   --module conv2d_layer  = conv2d R
@@ -50,8 +53,8 @@ module layers_coll (R:real): layers with t = R.t = {
   module flatten_layer = flatten R
 
   --- Layer types
-  type^ dense_tp [m] [n] =
-    dense_layer [m] [n] t
+  type^ dense_tp [m] [n] [p] =
+    dense_layer [m] [n] t [p]
 
   --type^ conv2d_tp [p][m][n] [filter_d] [filters] [out_m] [out_n] =
   --  conv2d_layer [p][m][n] [filter_d] [filters] [out_m] [out_n] t

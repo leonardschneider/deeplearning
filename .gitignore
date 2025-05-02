@@ -1,2 +1,11 @@
 lib/
 !lib/github.com/HnimNart/
+**/*.c
+**/*.h
+**/*.o
+**/*.so
+**/*.json
+**/.DS_Store
+.env
+**/wandb
+**/__pycache__/
