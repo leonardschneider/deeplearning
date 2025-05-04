@@ -1,6 +1,7 @@
 from itertools import takewhile
 import numpy as np
 from huggingface_hub import hf_hub_download, HfApi
+from huggingface_hub.utils import RepositoryNotFoundError
 from safetensors import deserialize
 from io import BytesIO
 import json
@@ -42,11 +43,11 @@ def parse_spec(spec):
     i += 2
     tpe = bs[i:i+4].decode()
     i += 4
-    ndims = int.from_bytes(bs[i:i+1])
+    ndims = int.from_bytes(bs[i:i+1], byteorder='little')
     i += 1
     dims = []
     for j in range(ndims):
-      dim = int.from_bytes(bs[i:i+8])
+      dim = int.from_bytes(bs[i:i+8], byteorder='little')
       i += 8
       dims.append(dim)
     res[label] = {"tpe": tpe.strip(), "dims": dims}
@@ -63,6 +64,8 @@ def load_weights_from_hf_hub(model, repo_id, filename, token):
       assert label in weights.keys(), f"Missing {label} in weights"
       assert weights[label]["dtype"].lower() == spec["tpe"], f"Expected dtype {spec['tpe']} from model spec, got {weights[label]["dtype"]} from safetensors"
       assert weights[label]["shape"] == spec["dims"], f"Expected shape {spec['dims']} from model spec, got {weights[label]["shape"]} from safetensors"
+      #print(f"Loading {label} with shape {spec['dims']} and dtype {spec['tpe']}")
+      #print(np.frombuffer(weights[label]["data"], dtype=nptypes[spec["tpe"]]).reshape(spec["dims"]))
       res += weights[label]["data"]
   return model.load_weights(np.frombuffer(bytes(res), dtype=np.uint8))
 
@@ -104,12 +107,14 @@ def push_to_HF_hub(model, repo_id, futhark_model_file, ws, commit_message, token
   safetensor_weights = weights_to_safetensors(model, ws)
   api = HfApi()
   # Create repo if needed
-  api.create_repo(
+  try:
+    api.auth_check(repo_id=repo_id, token=token)
+  except RepositoryNotFoundError:
+    api.create_repo(
       repo_id=repo_id,
       repo_type="model",
-      exist_ok=True,
       token=token,
-  )
+    )
   # Upload weights
   api.upload_file(
       path_or_fileobj=BytesIO(safetensor_weights),

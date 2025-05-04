@@ -3,7 +3,7 @@ package github.com/HnimNart/deeplearning
 require {
   github.com/diku-dk/linalg 0.6.0 #39eff097509db88ec82bcf9316186d3a147080a6
   github.com/diku-dk/cpprandom 1.3.1 #7ea358bd8bbbeb4786030a21a8d947ef37d1e032
-  github.com/leonardschneider/pickle 0.0.0-20250427212724+515204157866e38a150d1cd13c2d93f2da45244b
+  github.com/leonardschneider/pickle 0.0.0-20250504165409+b5582afb9c3cb1dddbea729b9a7f88930a307acb
   github.com/diku-dk/autodiff 0.2.4 #d41db4938a4ff9be27db975e7a53ff215c906e82
   github.com/leonardschneider/futhark-option 0.0.0-20250430134549+8f5c5a7196720c64b958c3ba0ecf7f64a6e64255
 }

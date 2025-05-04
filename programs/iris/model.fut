@@ -9,12 +9,10 @@ module dl = deep_learning f32
 let model = \() -> 
   let seed = 1i32
 
-  let l1 = dl.layers.dense "fc1" 784 300 (dl.nn.relu 300) seed
-  let l2 = dl.layers.dense "fc2" 300 100 (dl.nn.relu 100) seed
-  let l3 = dl.layers.dense "fc3" 100 10 (dl.nn.identity 10) seed
+  let l1 = dl.layers.dense "fc1" 4 5 (dl.nn.relu 5) seed
+  let l2 = dl.layers.dense "fc2" 5 3 (dl.nn.identity 3) seed
 
-  let nn0 = dl.nn.connect_layers l1 l2
-  let nn  = dl.nn.connect_layers nn0 l3
+  let nn = dl.nn.connect_layers l1 l2
   in nn
 
 --| Entry points
@@ -47,7 +45,7 @@ entry specs =
 let nn = model ()
 
 entry predict = \ws inputs ->
-  dl.nn.predict (model ()) ws inputs (dl.nn.softmax 10) |> map dl.nn.argmax
+  dl.nn.predict (model ()) ws inputs (dl.nn.identity 3)
 --  let nn = model ()
 --  in dl.nn.predict nn ws inputs (dl.nn.softmax 10) |> map dl.nn.argmax
 
@@ -55,27 +53,27 @@ entry predict = \ws inputs ->
 entry train [K]
   ws
   (batch_size: i32)
-  (inputs: [K][784]dl.t)
+  (inputs: [K][4]dl.t)
   (labels: [K]u8) =
   let alpha = 0.01
   let nn = model ()
   let encode = onehot.(onehot (arr f32))
-  let labels': [K][10]f32 = map (i64.u8 >-> encode) labels
+  let labels': [K][3]f32 = map (i64.u8 >-> encode) labels
   in dl.train.gradient_descent nn ws alpha
             inputs labels'
-            (i64.i32 batch_size) (dl.loss.softmax_cross_entropy_with_logits 10)
+            (i64.i32 batch_size) (dl.loss.softmax_cross_entropy_with_logits 3)
 
-entry validate [K] ws (inputs:[K][784]dl.t) (labels: [K]u8) =
+entry validate [K] ws (inputs:[K][4]dl.t) (labels: [K]u8) =
   let nn = model ()
   let encode = onehot.(onehot (arr f32))
-  let labels': [K][10]f32 = map (i64.u8 >-> encode) labels
+  let labels': [K][3]f32 = map (i64.u8 >-> encode) labels
   let accuracy = dl.nn.accuracy
     nn ws
     inputs labels'
-    (dl.nn.softmax 10) dl.nn.argmax
+    (dl.nn.softmax 3) dl.nn.argmax
   let loss = dl.nn.loss
     nn ws
     inputs labels'
-    (dl.loss.softmax_cross_entropy_with_logits 10)
-    (dl.nn.identity 10)
+    (dl.loss.softmax_cross_entropy_with_logits 3)
+    (dl.nn.identity 3)
   in (accuracy, loss)

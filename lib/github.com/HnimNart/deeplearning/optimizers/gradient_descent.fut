@@ -15,9 +15,9 @@ module gradient_descent (R:real) : optimizer_type
 
   let apply_grad_gd (alpha:learning_rate)
                     (batch_size:i64)
-                    (m: i64) (n: i64)
-                    ((w,b): (std_weights [m][n] [m] t))
-                    ((wg,bg): (std_weights [m][n] [m] t)) =
+                    (n: i64) (m: i64)
+                    ((w,b): (std_weights [n][m] [n] t))
+                    ((wg,bg): (std_weights [n][m] [n] t)) =
 
     let wg_mean   = map (map R.((/i64 batch_size))) wg
     let bg_mean   = map (R.((/i64 batch_size))) bg

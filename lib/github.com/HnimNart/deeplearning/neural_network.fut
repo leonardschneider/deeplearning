@@ -114,11 +114,10 @@ module neural_network (R:real): network with t = R.t = {
                (labels: [K]o)
                (classification:activation_func o)
                (f: o -> i32) : t =
-    let predictions  = predict nn ws input classification
-    let argmaxs      = map2 (\x y -> (f x,f y)) labels predictions
-    let total        = reduce (+) 0 (map (\(x,y) -> i32.bool (x == y))
-                                             argmaxs)
-    in R.(i32 total / i64 K)
+    let predictions = predict nn ws input classification |> map f
+    let labels      = map f labels
+    let total       = map2 (==) predictions labels |> map i32.bool |> i32.sum
+    in R.(i32 total)
 
 
   let loss [K] 'w 'g 'e1 'e2 '^u 'i 'o [s] [ps]
