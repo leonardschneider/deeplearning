@@ -5,43 +5,8 @@ import "dense"
 import "flatten"
 --import "max_pooling"
 
-module type layers = {
 
-  type t
-
-  module R: Real with t = t
-
-  --- Layer types
-  type^ dense_tp [m] [n] [p] =
-    dense_layer [m] [n] t [p]
-
-  --type^ conv2d_tp [p][m][n] [filter_d] [filters] [out_m] [out_n] =
-  --  conv2d_layer [p][m][n] [filter_d] [filters] [out_m] [out_n] t
-
-  --type^ max_pooling_tp [nlayer] [input_m][input_n] [output_m][output_n] =
-  --  max_pooling_2d_layer [nlayer] [input_m][input_n] [output_m][output_n] t
-
-  type^ flatten_tp [m][a][b] =
-    flatten_layer [m][a][b] t
-
-  -- Simple wrappers for each layer type
-  val dense [s]: (label: [s]u8) -> (m: i64) -> (n: i64) -> activation_func ([n]t) ->  i32 -> dense_tp [m] [n] [n * (m * R.sz) + n * R.sz]
-  --val conv2d : (p: i64) -> (m: i64) -> (n: i64)
-  --          -> (filter_d: i64) -> (stride: i32) -> (filters: i64)
-  --          -> (out_m: i64) -> (out_n: i64)
-  --          -> ((d: i64) -> activation_func ([d]t))
-  --          -> i32
-  --          -> conv2d_layer [p][m][n] [filter_d] [filters] [out_m] [out_n] t
-  --val max_pooling2d :
-  --             (nlayer: i64)
-  --          -> (input_m: i64) -> (input_n: i64)
-  --          -> (output_m: i64) -> (output_n: i64)
-  --          -> max_pooling_tp [nlayer] [input_m][input_n] [output_m][output_n]
-  val flatten : (m: i64) -> (a: i64) -> (b: i64)
-          -> flatten_tp [m][a][b]
-}
-
-module layers_coll (R: Real): layers with t = R.t = {
+module layers (R: Real) = {
 
   type t = R.t
 
@@ -52,18 +17,11 @@ module layers_coll (R: Real): layers with t = R.t = {
   --module maxpool_layer = max_pooling_2d R
   module flatten_layer = flatten R
 
-  --- Layer types
-  type^ dense_tp [m] [n] [p] =
-    dense_layer [m] [n] t [p]
-
   --type^ conv2d_tp [p][m][n] [filter_d] [filters] [out_m] [out_n] =
   --  conv2d_layer [p][m][n] [filter_d] [filters] [out_m] [out_n] t
 
   --type^ max_pooling_tp [nlayer] [input_m][input_n] [output_m][output_n] =
   --  max_pooling_2d_layer [nlayer] [input_m][input_n] [output_m][output_n] t
-
-  type^ flatten_tp [m][a][b] =
-    flatten_layer [m][a][b] t
 
   let dense = dense_layer.init
 

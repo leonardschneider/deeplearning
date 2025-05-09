@@ -1,11 +1,13 @@
-lib/
-!lib/github.com/HnimNart/
+lib/github.com/diku-dk
+lib/github.com/leonardschneider/
 **/*.c
 **/*.h
 **/*.o
 **/*.so
 **/*.json
 **/.DS_Store
+**/*.bak
 .env
 **/wandb
 **/__pycache__/
+**/model

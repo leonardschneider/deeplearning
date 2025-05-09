@@ -1,15 +1,18 @@
 import "../../leonardschneider/pickle/pickle"
+import "../../leonardschneider/functor/functor"
 
 -- | Network types
-type^ forwards   'input 'w 'output 'cache = bool -> w -> input -> (cache, output)
-type^ backwards  'c 'w  'err_in  'err_out '^u = bool -> u -> w -> c -> err_in  -> (err_out, w)
+type^ forwards   'input 'w 'output 'cache [k] = bool -> w -> [k]input -> ([k]cache, [k]output)
+type^ backwards  'c 'w 'err_in 'err_out [k] = bool -> w -> [k]c -> [k]err_in -> ([k]err_out, w)
 
-type^ NN 'input 'w 'output 'c 'e_in 'e_out '^u [s] [p] =
-               { forward : (k: i64) -> forwards ([k]input) w ([k]output) ([k]c),
-                 backward: (k: i64) -> backwards ([k]c) w ([k]e_in) ([k]e_out) u,
-                 pickle: pickle.pu w [p],
-                 specs: [s]u8,
-                 w_init: () -> w}
+type^ NN 'input 'w 'output 'c 'e_in 'e_out 't [s] [p] [ts] = {
+  forward : (k: i64) -> forwards input w output c [k],
+  backward: (k: i64) -> backwards c w e_in e_out [k],
+  pickle: pickle.pu w [p],
+  specs: [s]u8,
+  functor: F.F t w [ts],
+  w_init: () -> w
+}
 
 --- Commonly used types
 type arr1d [n] 't = [n]t

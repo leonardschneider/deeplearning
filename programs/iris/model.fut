@@ -1,8 +1,8 @@
 import "../../lib/github.com/HnimNart/deeplearning/deep_learning"
+import "../../lib/github.com/HnimNart/deeplearning/optimizers/sgd"
 import "../../lib/github.com/HnimNart/deeplearning/util"
 import "../../lib/github.com/diku-dk/autodiff/onehot"
 import "../../lib/github.com/leonardschneider/pickle/pickle"
-import "../../lib/github.com/leonardschneider/futhark-option/option"
 
 module dl = deep_learning f32
 
@@ -38,28 +38,31 @@ entry specs =
   let nn = model ()
   in nn.specs
 
---entry predict [K] ws (inputs:[K][784]dl.t) =
---  let nn = model ()
---  in dl.nn.predict nn ws inputs (dl.nn.softmax 10) |> map dl.nn.argmax
-
 let nn = model ()
 
 entry predict = \ws inputs ->
   dl.nn.predict (model ()) ws inputs (dl.nn.identity 3)
---  let nn = model ()
---  in dl.nn.predict nn ws inputs (dl.nn.softmax 10) |> map dl.nn.argmax
 
+
+module optimizer = sgd f32
+
+entry optimizer_init =
+  let nn = model ()
+  let optim = optimizer.new nn
+  in optim.new_state ()
 
 entry train [K]
+  (lr: f32)
   ws
+  state
   (batch_size: i32)
   (inputs: [K][4]dl.t)
   (labels: [K]u8) =
-  let alpha = 0.01
   let nn = model ()
   let encode = onehot.(onehot (arr f32))
   let labels': [K][3]f32 = map (i64.u8 >-> encode) labels
-  in dl.train.gradient_descent nn ws alpha
+  let optim = optimizer.new nn
+  in dl.nn.train nn ws optim state lr
             inputs labels'
             (i64.i32 batch_size) (dl.loss.softmax_cross_entropy_with_logits 3)
 

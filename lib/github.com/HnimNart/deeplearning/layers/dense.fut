@@ -4,24 +4,25 @@ import "../util"
 import "../weight_init"
 import "../../../diku-dk/linalg/linalg"
 import "../../../leonardschneider/pickle/pickle"
+import "../../../leonardschneider/functor/functor"
 
 -- | Fully connected layer type
 --   - [m]: number of input features
 --   - [n]: number of output features
 --   - t: type of the weights (must be a field)
 --   - [p]: total byte size of the weights and biases
-type^ dense_layer [m] [n] 't [p] =
+type^ dense_layer [m] [n] 't [p] [ts] =
   NN ([m]t) (std_weights [n][m] [n] t) ([n]t)
-     ([m]t, [n]t) ([n]t) ([m]t)
-     (apply_grad3 t) [] [p]
+     ([m]t, [n]t) ([n]t) ([m]t) t
+     [] [p] [ts]
 
 -- | Fully connected layer
 module dense (R: Real): { type t = R.t
                           val init [s]: (label: [s]u8) -> (m: i64) -> (n: i64)
                                   -> activation_func ([n]t)
                                   -> i32
-                                  -> dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz]
-                         } = {
+                                  -> dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz] [n * (m * 1) + n * 1]
+                         }  = {
 
   type t            = R.t
 
@@ -47,30 +48,27 @@ module dense (R: Real): { type t = R.t
                (m: i64) (n: i64)
                (f': [n]t -> [n]t)
                (_first_layer:bool)
-               (apply_grads: apply_grad3 t)
-               ((A,b): std_weights [n][m] [n] t)
+               ((A, _): std_weights [n][m] [n] t)
                (cache: [k]([m]t, [n]t))
                (error: [k][n]t)
-             : ([k][m]t, std_weights [n][m] [n] t) =
+             : ([k][m]t, (std_weights [n][m] [n] t)) =
     let (x, y)  = unzip cache
-    let y'      = map f' y
-    let delta   = map2 (map2 (R.*)) error y'
-    let A_grad: [n][m]t = lalg.matmul (transpose delta) x
-    let b_grad: [n]t    = map (R.sum) (transpose delta)
-    let (A', b') = apply_grads n m (A, b) (A_grad, b_grad)
-
-    --- Calc error to backprop to previous layer
-    let error' = lalg.matmul delta A
-    in (error', (A', b'))
+    let y'    : [k][n]t = map f' y
+    let delta : [k][n]t = map2 (map2 (R.*)) error y'
+    let x'    : [k][m]t = lalg.matmul delta A
+    let A_grad: [n][m]t = lalg.matmul (transpose y') x
+    let b_grad: [n]t    = map R.sum (transpose y')
+    in (x', (A_grad, b_grad))
 
   module P = pickle
 
-  let init [s] (label: [s]u8) m n (act: activation_func ([n]t)) (seed:i32) : dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz] =
+  let init [s] (label: [s]u8) m n (act: activation_func ([n]t)) (seed:i32): dense_layer [m] [n] t [n * (m * R.sz) + n * R.sz] [n * (m * 1) + n * 1] =
     {forward  = \k -> forward k m n act.f,
      backward = \k -> backward k m n act.fd,
      pickle = P.pair (P.array n (P.array m R.pu)) (P.array n R.pu),
      specs = label ++ ".weight" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x02] ++ ((P.pickle P.i64) n) ++ ((P.pickle P.i64) m)
           ++ label ++ ".bias" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x01] ++ ((P.pickle P.i64) n),
+     functor = F.(pair (array n (array m scalar)) (array n scalar)),
      w_init = \() -> (w_init.gen_random_array_2d_xavier_uni m n seed, map (\_ -> R.(i32 0)) (0..<n))}
 
 }

@@ -1,11 +1,12 @@
 import "../nn_types"
 import "layer_type"
 import "../../../leonardschneider/pickle/pickle"
+import "../../../leonardschneider/functor/functor"
 
 type^ flatten_layer [m][a][b] 't =
     NN ([m][a][b]t) () ([m*a*b]t)
        () ([m*a*b]t) ([m][a][b]t)
-       (apply_grad3 t) [] []
+       t [] [] []
 
 module flatten (R:real) : {
   type t = R.t
@@ -20,7 +21,6 @@ module flatten (R:real) : {
 
   let backward (k: i64) (m: i64) (a: i64) (b: i64)
                (_first_layer:bool)
-               (_: apply_grad3 t)
                ()
                _
                (error: [k][m*a*b]t) : ([k][m][a][b]t, ()) =
@@ -32,5 +32,6 @@ module flatten (R:real) : {
      backward = \k -> backward k m a b,
      pickle = pickle.cst (),
      specs = [],
+     functor = F.nil,
      w_init  = \() -> ()}
 }

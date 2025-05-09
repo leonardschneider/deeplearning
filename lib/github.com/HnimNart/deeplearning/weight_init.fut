@@ -5,6 +5,10 @@ import "../../diku-dk/cpprandom/random"
 module weight_initializer (R:real) : {
 
   type t = R.t
+
+  -- | Generate random number from uniform distribution
+  val gen_random_array_uni: (d: i64) -> (dist: (R.t, R.t)) -> i32 -> [d]t
+
   ---- Using xavier uniform initializer [-limit, limit]
   ---- with limit = sqrt(6/(fan_in + fan_out))
   val gen_random_array_2d_xavier_uni: (m:i64) -> (n:i64) -> i32 -> [n][m]t
