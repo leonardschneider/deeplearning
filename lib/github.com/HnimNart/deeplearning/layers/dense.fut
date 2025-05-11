@@ -69,6 +69,8 @@ module dense (R: Real): { type t = R.t
      specs = label ++ ".weight" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x02] ++ ((P.pickle P.i64) n) ++ ((P.pickle P.i64) m)
           ++ label ++ ".bias" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x01] ++ ((P.pickle P.i64) n),
      functor = F.(pair (array n (array m scalar)) (array n scalar)),
-     w_init = \() -> (w_init.gen_random_array_2d_xavier_uni m n seed, map (\_ -> R.(i32 0)) (0..<n))}
+     w_init = \() -> (w_init.gen_random_array_2d_xavier_uni m n seed, map (\_ -> R.(i32 0)) (0..<n)),
+     update_weights = \(w, b) (dw, db) -> (map2 (map2 (R.+)) w dw, map2 (R.+) b db),
+    }
 
 }

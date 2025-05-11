@@ -90,9 +90,13 @@ module neural_network (R:real): network with t = R.t = {
 
   let connect_layers 'w1 'w2 'i1 'o1 'o2 'c1 'c2 'e1 'e2 'e [s1] [s2] [ps1] [ps2] [ts1] [ts2]
                      ({forward=f1, backward=b1,
-                        pickle=p1, specs=sp1, functor=fun1, w_init=wi1 }: NN i1 w1 o1 c1 e e1 t [s1] [ps1] [ts1])
+                        pickle=p1, specs=sp1,
+                        functor=fun1, w_init=wi1,
+                        update_weights=uw1}: NN i1 w1 o1 c1 e e1 t [s1] [ps1] [ts1])
                      ({forward=f2, backward=b2,
-                        pickle=p2, specs=sp2, functor=fun2, w_init=wi2 }: NN o1 w2 o2 c2 e2 e t [s2] [ps2] [ts2])
+                        pickle=p2, specs=sp2,
+                        functor=fun2, w_init=wi2,
+                        update_weights=uw2}: NN o1 w2 o2 c2 e2 e t [s2] [ps2] [ts2])
                       : NN i1 (w1,w2) (o2) (c1,c2) (e2) (e1) t [s1+s2] [ps1+ps2] [ts1+ts2]=
     {forward = \k (is_training) (w1, w2) input ->
                  let (c1, res)  = f1 k is_training w1 input
@@ -106,7 +110,8 @@ module neural_network (R:real): network with t = R.t = {
      pickle = pickle.pair p1 p2,
      specs = sp1 ++ sp2,
      functor = F.pair fun1 fun2,
-     w_init = \() -> (wi1 (), wi2 ())
+     w_init = \() -> (wi1 (), wi2 ()),
+     update_weights = \(w1, w2) -> \(dw1, dw2) -> (uw1 w1 dw1, uw2 w2 dw2)
     }
 
   let size 'w 'g 'i 'e1 'e2 'o [s] [p] [ts] (_: NN i w o g e1 e2 t [s] [p] [ts]): i64 = p

@@ -28,7 +28,8 @@ module trainer(R: real) = {
               pickle=_,
               specs=_,
               functor=fun,
-              w_init=_}: NN i w o g o e2 t [s] [ps] [ts])
+              w_init=_,
+              update_weights=update}: NN i w o g o e2 t [s] [ps] [ts])
             (ws: w)
             (optimizer: Opt [ts] t state w)
             (state: state)
@@ -51,10 +52,11 @@ module trainer(R: real) = {
           |> (R.+) training_loss
         let error           = map2 (\o l -> loss' o l) output label'
         let (_, grads)      = b batch_sz false ws cache error
-        let ws              = fun.flatten ws
+        let w0              = fun.flatten ws
         let grads           = fun.flatten grads
-        let (ws', state')   = optimizer.step lr state ws grads
-        let ws'             = fun.unflatten ws'
+        let (delta, state') = optimizer.step lr state w0 grads
+        let delta           = fun.unflatten delta
+        let ws'             = update ws delta
         in (state', ws', training_loss', i + batch_sz)
     in (state', { weights = ws'}, training_loss')
 

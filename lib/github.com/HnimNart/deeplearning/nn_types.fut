@@ -11,6 +11,7 @@ type^ NN 'input 'w 'output 'c 'e_in 'e_out 't [s] [p] [ts] = {
   pickle: pickle.pu w [p],
   specs: [s]u8,
   functor: F.F t w [ts],
+  update_weights: w -> w -> w,
   w_init: () -> w
 }
 
@@ -42,7 +43,7 @@ type^ loss_func 'o  't   = {f: o -> o -> t, fd: o -> o -> o}
 
 --- Real numbers with serialization
 module type Real = {
-  include real
+  include float
   val sz: i64
   type^ Pu = pickle.pu t [sz]
   val pu: Pu
