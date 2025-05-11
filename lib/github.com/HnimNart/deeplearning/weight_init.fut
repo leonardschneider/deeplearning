@@ -6,6 +6,9 @@ module weight_initializer (R:real) : {
 
   type t = R.t
 
+  -- | Generate random number from normal distribution
+  val gen_random_array_norm: (d: i64) -> (seed: i32) -> (dist: {mean: t, stddev: t}) -> [d]t
+
   -- | Generate random number from uniform distribution
   val gen_random_array_uni: (d: i64) -> (dist: (R.t, R.t)) -> i32 -> [d]t
 

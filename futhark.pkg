@@ -6,5 +6,6 @@ require {
   github.com/leonardschneider/pickle 0.0.0-20250504165409+b5582afb9c3cb1dddbea729b9a7f88930a307acb
   github.com/diku-dk/autodiff 0.2.4 #d41db4938a4ff9be27db975e7a53ff215c906e82
   github.com/leonardschneider/futhark-option 0.0.0-20250430134549+8f5c5a7196720c64b958c3ba0ecf7f64a6e64255
-  github.com/leonardschneider/functor 0.0.0-20250507022627+4515c2cff01a14abcddc7f11a5b8c4c50f413409
+  github.com/leonardschneider/functor 0.0.0-20250509155828+b9341f028083adfd6301a64e2672d56b98a85e61
+  github.com/diku-dk/statistics 0.2.1 #ad49c009c7fb5d3059d4edca65d0e0f6b145da05
 }
