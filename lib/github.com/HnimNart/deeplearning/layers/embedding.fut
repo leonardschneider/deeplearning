@@ -12,7 +12,7 @@ import "../../../leonardschneider/functor/functor"
 --  - [d]: embedding dimension
 type^ embedding_layer [m][d][v] 't [p] [ts] =
   NN ([m]u32) ([v][d]t) ([m][d]t)
-     ([m]u32) ([m][d]t) ([m]u32)
+     ([m]u32)
      t [] [p] [ts]
 
 -- | Embedding layer

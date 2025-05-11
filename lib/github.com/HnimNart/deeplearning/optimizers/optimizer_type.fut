@@ -12,7 +12,7 @@ module type optimizer_type = {
   type state [n]
 
   -- | Create a new default state from the network weights
-  val new 'i 'o 'w 'c 'e_in 'e_out [s] [p] [n]: NN i w o c e_in e_out t [s] [p] [n] -> Opt [n] t (state [n]) w
+  val new 'i 'o 'w 'c [s] [p] [n]: NN i w o c t [s] [p] [n] -> Opt [n] t (state [n]) w
 
 }
 
@@ -29,7 +29,7 @@ module trainer(R: real) = {
               specs=_,
               functor=fun,
               w_init=_,
-              update_weights=update}: NN i w o g o e2 t [s] [ps] [ts])
+              update_weights=update}: NN i w o g t [s] [ps] [ts])
             (ws: w)
             (optimizer: Opt [ts] t state w)
             (state: state)

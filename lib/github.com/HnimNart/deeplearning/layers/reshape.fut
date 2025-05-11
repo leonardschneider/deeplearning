@@ -5,7 +5,7 @@ import "../../../leonardschneider/functor/functor"
 
 type^ reshape_layer 'a 'b 't =
     NN a () b
-       () b a
+       ()
        t [] [] []
 
 module reshape (R:real) = {

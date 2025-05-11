@@ -9,7 +9,7 @@ import "../../../leonardschneider/functor/functor"
 -- | Dropout layer type 
 type^ dropout_layer [m] 't [p] [ts] =
   NN ([m]t) i32 ([m]t)
-     ([m]bool) ([m]t) ([m]t)
+     ([m]bool)
      () [] [p] [ts]
 
 -- | Dropout layer

@@ -27,7 +27,7 @@ module sgd (R: real): optimizer_type
     let theta = map2 (\th g -> th R.- gamma R.* (g)) theta grad
     in (theta, state)
   
-  let new 'i 'o 'w 'c 'e_in 'e_out [s] [p] [n] (_: NN i w o c e_in e_out t [s] [p] [n]): Opt [n] t (state [n]) w = {
+  let new 'i 'o 'w 'c 'e_in 'e_out [s] [p] [n] (_: NN i w o c t [s] [p] [n]): Opt [n] t (state [n]) w = {
     step = step,
     new_state = new_state,
     lr = \(state: state [n]) -> state.lr

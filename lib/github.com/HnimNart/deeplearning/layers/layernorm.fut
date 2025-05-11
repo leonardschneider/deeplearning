@@ -12,7 +12,7 @@ import "../../../diku-dk/statistics/statistics"
 --  - [n]: features to normalize over (independent)
 type^ layernorm_layer [m] [n] 't [p] [ts] =
   NN ([m][n]t) ([n]t, [n]t) ([m][n]t)
-     ([m][n]t, [m][n]t, [n]t, [n]t) ([m][n]t) ([m][n]t)
+     ([m][n]t, [m][n]t, [n]t, [n]t)
      t [] [p] [ts]
 
 module pre = {

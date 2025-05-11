@@ -2,12 +2,12 @@ import "../../leonardschneider/pickle/pickle"
 import "../../leonardschneider/functor/functor"
 
 -- | Network types
-type^ forwards   'input 'w 'output 'cache [k] = bool -> w -> [k]input -> ([k]cache, [k]output)
-type^ backwards  'c 'w 'err_in 'err_out [k] = bool -> w -> [k]c -> [k]err_in -> ([k]err_out, w)
+type^ forwards   'x 'w 'y 'cache [k] = bool -> w -> [k]x -> ([k]cache, [k]y)
+type^ backwards  'c 'w 'dy 'dx [k] = bool -> w -> [k]c -> [k]dy -> ([k]dx, w)
 
-type^ NN 'input 'w 'output 'c 'e_in 'e_out 't [s] [p] [ts] = {
-  forward : (k: i64) -> forwards input w output c [k],
-  backward: (k: i64) -> backwards c w e_in e_out [k],
+type^ NN 'x 'w 'y 'c 't [s] [p] [ts] = {
+  forward : (k: i64) -> forwards x w y c [k],
+  backward: (k: i64) -> backwards c w y x [k],
   pickle: pickle.pu w [p],
   specs: [s]u8,
   functor: F.F t w [ts],

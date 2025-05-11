@@ -13,8 +13,8 @@ import "../../../leonardschneider/functor/functor"
 --   - [p]: total byte size of the weights and biases
 type^ dense_layer [m] [n] 't [p] [ts] =
   NN ([m]t) (std_weights [n][m] [n] t) ([n]t)
-     ([m]t, [n]t) ([n]t) ([m]t) t
-     [] [p] [ts]
+     ([m]t, [n]t)
+     t [] [p] [ts]
 
 -- | Fully connected layer
 module dense (R: Real): { type t = R.t
