@@ -44,12 +44,12 @@ module adam (R: real): optimizer_type
     let v = map2 (\g v -> beta2 R.* v R.+ (R.(i32 1) R.- beta2) R.* g R.* g) grad v
     let m_hat = map (\m -> m R./ (R.(i32 1) R.- beta1 R.** time)) m
     let v_hat = map (\v -> v R./ (R.(i32 1) R.- beta2 R.** time)) v
-    let theta = map3 (\th m v -> th R.- gamma R.* m R./ (R.sqrt v R.+ eps) ) theta m_hat v_hat
+    let delta = map2 (\m v -> R.neg gamma R.* m R./ (R.sqrt v R.+ eps) ) m_hat v_hat
     let state = state
                 with time = state.time + 1
                 with m = m
                 with v = v
-    in (theta, state)
+    in (delta, state)
   
   let new 'i 'o 'w 'c 'e_in 'e_out [s] [p] [n] (_: NN i w o c e_in e_out t [s] [p] [n]): Opt [n] t (state [n]) w = {
     step = step,
