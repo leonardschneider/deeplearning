@@ -183,7 +183,7 @@ module conv1d (R: Real) = {
       backward = \N -> backward N C_in L_in C_out K config.padding config.stride config.dilation,
       pickle   = P.(pair (array C_out (array C_in (array K R.pu))) (array C_out R.pu)),
       specs    = label ++ ".weight" ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x03] ++ ((P.pickle P.i64) C_out) ++ ((P.pickle P.i64) C_in) ++ ((P.pickle P.i64) K)
-                       ++ ".bias"   ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x01] ++ ((P.pickle P.i64) C_out),
+              ++ label ++ ".bias"   ++ [0x00, 'b', 0x02] ++ R.tpe ++ [0x01] ++ ((P.pickle P.i64) C_out),
       functor  = F.(pair (array C_out (array C_in (array K scalar))) (array C_out scalar)),
       w_init     = \() -> (
         let ker = w_init.gen_random_array_uni (C_out*C_in*K) (R.neg k, k) seed |> unflatten_3d
